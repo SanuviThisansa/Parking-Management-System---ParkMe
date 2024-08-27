@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:parkme/services/auth.service.dart';
 import 'package:parkme/utils/index.dart';
+import 'package:parkme/views/auth/forget.password.view.dart';
 import 'package:parkme/views/auth/signup.view.dart';
 import 'package:parkme/views/home/home.view.dart';
 import 'package:parkme/widgets/custom.filled.button.dart';
@@ -61,6 +62,16 @@ class _LoginViewState extends State<LoginView> {
                     return null;
                   },
                   isPassword: true,
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Center(
+                  child: TextButton(
+                      onPressed: () {
+                        context.navigator(context, const ForgetPasswordView());
+                      },
+                      child: const Text('Forget Password')),
                 ),
                 const SizedBox(
                   height: 16,
