@@ -106,7 +106,8 @@ class HomeTitle extends StatelessWidget {
             ),
           ),
           const Positioned(
-            left: 16,
+            left: 26,
+            top: 15,
             child: DefaultTextStyle(
               style: TextStyle(
                 color: Colors.white,
@@ -118,12 +119,12 @@ class HomeTitle extends StatelessWidget {
                   Text(
                     "Looking for",
                     style: TextStyle(
-                      fontSize: 32,
+                      fontSize: 30,
                     ),
                   ),
                   Text(
                     "Parking Space ?",
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
