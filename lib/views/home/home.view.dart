@@ -92,7 +92,7 @@ class _HomeViewState extends State<HomeView> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(60),
                     ),
-                    backgroundColor: Colors.amber,
+                    backgroundColor: Colors.teal,
                     onPressed: () {
                       homeProvider.setActiveIndex = 4;
                     },
@@ -111,7 +111,7 @@ class _HomeViewState extends State<HomeView> {
                     rightCornerRadius: 12,
                     icons: iconList,
                     activeIndex: homeProvider.activeIndex,
-                    activeColor: Colors.amber,
+                    activeColor: Colors.teal,
                     inactiveColor: Colors.grey,
                     gapLocation: GapLocation.center,
                     notchSmoothness: NotchSmoothness.defaultEdge,
