@@ -17,7 +17,7 @@ class PanaltiesView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Panalties",
+          "Penalties",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,

@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore: unused_import
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:parkme/models/app.user.model.dart';
 import 'package:parkme/models/parking.place.model.dart';
 import 'package:parkme/services/app.user.service.dart';
@@ -14,6 +19,8 @@ import 'package:parkme/views/profile/register.parking.place.dart';
 import 'package:parkme/views/profile/update.parking.space.view.dart';
 import 'package:parkme/widgets/custom.filled.button.dart';
 import 'package:parkme/widgets/custom.input.field.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:qr_image_generator/qr_image_generator.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -28,6 +35,42 @@ class _ProfileViewState extends State<ProfileView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _roleController = TextEditingController();
+  Future<void> saveQRImage() async {
+    try {
+      final generator = QRGenerator();
+      final fPath = await filePath();
+
+      if (fPath == null || fPath.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid file path')),
+        );
+        return;
+      }
+      await generator.generate(
+        data: '${FirebaseAuth.instance.currentUser?.uid}',
+        filePath: fPath,
+        scale: 10,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.black,
+        errorCorrectionLevel: ErrorCorrectionLevel.medium,
+        qrVersion: 4,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('QR code saved successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving QR code: $e')),
+      );
+    }
+  }
+
+  Future<String?> filePath() async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return '${directory.path}/parkQR.png';
+  }
 
   @override
   void initState() {
@@ -105,8 +148,27 @@ class _ProfileViewState extends State<ProfileView> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: ListView(
+          // Changed Column to ListView here
           children: [
+            StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('points')
+                    .doc(FirebaseAuth.instance.currentUser?.uid)
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data?.data() == null) {
+                      return Text("Total Points : 0");
+                    } else {
+                      final data =
+                          snapshot.data?.data() as Map<String, dynamic>;
+                      return Text("Total Points : ${data['points']}");
+                    }
+                  } else {
+                    return Text("Total Points : 0");
+                  }
+                }),
             CustomInputField(
               enabled: false,
               controller: _emailController,
@@ -169,6 +231,42 @@ class _ProfileViewState extends State<ProfileView> {
                               onPressed: () {
                                 context.navigator(
                                     context, PanaltiesView(place: place));
+                              }),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          CustomButton(
+                              text: "Share Place QR",
+                              onPressed: () {
+                                saveQRImage();
+                                saveQRImage().then((value) => showDialog(
+                                      context: context,
+                                      builder: (context) => Dialog(
+                                        child: Container(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            constraints: const BoxConstraints(
+                                              maxHeight: 400,
+                                            ),
+                                            child: FutureBuilder(
+                                                future: filePath(),
+                                                builder: (context,
+                                                    AsyncSnapshot<String?>
+                                                        snapshot) {
+                                                  if (snapshot.data == null) {
+                                                    return const Center(
+                                                      child:
+                                                          CircularProgressIndicator(),
+                                                    );
+                                                  }
+                                                  return Image.file(
+                                                    File(snapshot.data!),
+                                                    fit: BoxFit.cover,
+                                                  );
+                                                })),
+                                      ),
+                                    ));
                               }),
                         ],
                       );
